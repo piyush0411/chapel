@@ -34,6 +34,8 @@
 #include "symbol.h"
 #include "visibleFunctions.h"
 #include "wellknown.h"
+#include <chrono>
+#include <bits/stdc++.h>
 
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
@@ -46,6 +48,11 @@
 static int             explainInstantiationLine   = -2;
 static ModuleSymbol*   explainInstantiationModule = NULL;
 static Vec<FnSymbol*>  whereStack;
+
+// static const std::chrono::time_point<std::chrono::steady_clock> Tstart = std::chrono::steady_clock::now();
+// static const std::chrono::time_point<std::chrono::steady_clock> Tend = std::chrono::steady_clock::now();
+static std::chrono::duration<double> elapsed;
+static int countCalls = 0;
 
 static
 FnSymbol* instantiateFunction(FnSymbol*  fn,
@@ -791,7 +798,11 @@ static void cleanupWhereClause(BlockStmt* where, SymExpr* last) {
 
 // Note: evaluateWhereClause can apply to concrete functions too
 bool evaluateWhereClause(FnSymbol* fn) {
+  // const std::chrono::time_point<std::chrono::steady_clock> start = std::chrono::steady_clock::now();
+  // const auto start = std::chrono::steady_clock::now();
   if (fn->where) {
+    countCalls++;
+    auto start = std::chrono::steady_clock::now();
     whereStack.add(fn);
 
     resolveSignature(fn);
@@ -801,6 +812,10 @@ bool evaluateWhereClause(FnSymbol* fn) {
     whereStack.pop();
 
     SymExpr* se = toSymExpr(fn->where->body.last());
+
+    auto end = std::chrono::steady_clock::now();
+    elapsed += end - start;
+    countCalls--;
 
     if (se == NULL) {
       USR_FATAL(fn->where, "invalid where clause");
@@ -820,4 +835,9 @@ bool evaluateWhereClause(FnSymbol* fn) {
   }
 
   return true;
+}
+
+void printTime() {
+  std::cout << "Total Time: " << elapsed.count() << " s\n";
+  std::cout << "Times called: " << countCalls <<"\n";
 }

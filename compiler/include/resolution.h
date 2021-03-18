@@ -313,6 +313,7 @@ void addTupleCoercion(AggregateType* fromT, AggregateType* toT, Symbol* fromSym,
 
 // other resolution functions
 bool evaluateWhereClause(FnSymbol* fn);
+void printTime();
 
 bool isAutoDestroyedVariable(Symbol* sym);
 
