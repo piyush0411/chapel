@@ -814,9 +814,13 @@ bool evaluateWhereClause(FnSymbol* fn) {
     SymExpr* se = toSymExpr(fn->where->body.last());
 
     auto end = std::chrono::steady_clock::now();
-    elapsed += end - start;
+    // elapsed += end - start;
     countCalls--;
 
+    if(countCalls == 0) {
+      elapsed += end - start;
+    }
+    
     if (se == NULL) {
       USR_FATAL(fn->where, "invalid where clause");
     }
